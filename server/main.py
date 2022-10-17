@@ -89,14 +89,27 @@ async def listAllDevices() -> tuple[str,Exception]:
 
 
 def SmartPlug_fmt(Devices):
-    return [
+    _fmt = [
         {
-            "alias":    i._sys_info.get("alias"),
+            "alias":        i._sys_info.get("alias"),
+            "host":         i.host,
             "dev_name":     i._sys_info.get("dev_name"),
-            "is_on":    i.is_on
+            "is_on":        i.is_on
         }
         for i in Devices
     ]
+
+    try:
+        snapshot_device_state(_fmt)
+    except Exception as e:
+        print(e)
+
+    return _fmt
+
+
+def snapshot_device_state(Devices:list[dict]) -> None:
+    with open('db/stateFile.json', 'w') as stateFile:
+        json.dump(Devices, stateFile, indent=4)
 
 
 def get_TPLink_devices():
