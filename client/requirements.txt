@@ -1,0 +1,4 @@
+flask
+flask[async]
+python-dotenv
+websockets
