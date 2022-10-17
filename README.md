@@ -7,4 +7,4 @@ a `.env` file with `WS_HOST` and `WS_PORT` to listen for websocket connections
 
 # Client
 ## requirements
-a `.env` file with 
+a `.env` file with the `WS_HOST` and `WS_PORT` of the server to initiate for websocket connections
