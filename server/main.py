@@ -113,7 +113,10 @@ def snapshot_device_state(Devices:list[dict]) -> None:
 
 
 def get_TPLink_devices():
-    results = []
+    # if your server has multiple interfaces on the same network (e.g., wireless and eth0)
+    # the same devices will appear twice as a neighbor -- dedupe by host IP
+    results = set()
+
     for i in subprocess.getoutput('ip neigh show').splitlines():
         host = i.split(' ')
         host.remove('')
@@ -129,17 +132,14 @@ def get_TPLink_devices():
         # validate MAC address
         try:
             if re.fullmatch(TPLink_MACaddr_re, host[4]):
-                results.append({
-                    'ip_addr': host[0],
-                    'mac_addr': host[4]
-                    })
+                results.add(host[0])
         
         except IndexError:
             continue
         except Exception:
             raise
-        
-    return [ kasa.SmartPlug(i.get('ip_addr')) for i in results ]
+
+    return [ kasa.SmartPlug(i) for i in results ]
     
 
 if __name__ == '__main__':
