@@ -54,7 +54,7 @@ async def handler(webscocket):
 
 
 async def toggleAllDevices(on:bool) -> tuple[str,Exception]:
-    Devices = [ kasa.SmartPlug(i.get('ip_addr')) for i in get_TPLink_devices() ]
+    Devices = get_TPLink_devices()
     update_coros = [ i.update() for i in Devices ]
     await asyncio.gather(*update_coros)
 
@@ -65,23 +65,38 @@ async def toggleAllDevices(on:bool) -> tuple[str,Exception]:
 
     await asyncio.gather(*power_coros)
 
-    devices_affected = [ {"alias": i._sys_info.get("alias"), "name": i._sys_info.get("dev_name"), "is_on": i.is_on} for i in Devices ]
-
-    return (
-        json.dumps(devices_affected), None
-        )
-
-
-async def listAllDevices() -> tuple[str,Exception]:
-    Devices = [ kasa.SmartPlug(i.get('ip_addr')) for i in get_TPLink_devices() ]
     update_coros = [ i.update() for i in Devices ]
+
     await asyncio.gather(*update_coros)
 
-    allDevices = [ {"alias": i._sys_info.get("alias"), "name": i._sys_info.get("dev_name"), "is_on": i.is_on} for i in Devices ]
+    allDevices = SmartPlug_fmt(Devices)
 
     return (
         json.dumps(allDevices), None
         )
+
+
+async def listAllDevices() -> tuple[str,Exception]:
+    Devices = get_TPLink_devices()
+    update_coros = [ i.update() for i in Devices ]
+    await asyncio.gather(*update_coros)
+
+    allDevices = SmartPlug_fmt(Devices)
+
+    return (
+        json.dumps(allDevices), None
+        )
+
+
+def SmartPlug_fmt(Devices):
+    return [
+        {
+            "alias":    i._sys_info.get("alias"),
+            "dev_name":     i._sys_info.get("dev_name"),
+            "is_on":    i.is_on
+        }
+        for i in Devices
+    ]
 
 
 def get_TPLink_devices():
@@ -111,7 +126,7 @@ def get_TPLink_devices():
         except Exception:
             raise
         
-    return results
+    return [ kasa.SmartPlug(i.get('ip_addr')) for i in results ]
     
 
 if __name__ == '__main__':
