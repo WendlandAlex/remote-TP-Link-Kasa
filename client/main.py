@@ -20,6 +20,12 @@ with app.app_context():
         async with websockets.connect(uri=uri) as conn:
             await conn.ping()
             
+            sockinfo = conn.remote_address
+            if ':' in WS_HOST:
+                print(f'connected to socket: ws://[{sockinfo[0]}]:{sockinfo[1]}')
+            else:
+                print(f'connected to socket: ws://{sockinfo[0]}:{sockinfo[1]}')
+
     asyncio.run(healthcheck())
     
     

@@ -6,8 +6,6 @@ import os
 import kasa 
 import websockets
 import json
-import io
-import pprint
 import dotenv
 
 dotenv.load_dotenv()
@@ -19,7 +17,10 @@ TPLink_MACaddr_re = r'54:af:97:a0:\w{2}:\w{2}'
 
 
 async def serve():
-    async with websockets.serve(handler, WS_HOST, WS_PORT):
+    async with websockets.serve(handler, WS_HOST, WS_PORT) as conn:
+        sockinfo = conn.sockets[0].getsockname()
+        print(f'listening on socket: ws://[{sockinfo[0]}]:{sockinfo[1]}')
+        
         await asyncio.Future()
 
 
@@ -108,9 +109,10 @@ def SmartPlug_fmt(Devices):
 
 
 def snapshot_device_state(Devices:list[dict]) -> None:
-    with open('db/stateFile.json', 'w') as stateFile:
-        json.dump(Devices, stateFile, indent=4)
-
+    # if no devices are discovered, don't destroy the snapshot of the last known devices
+    if Devices != []:
+        with open('db/stateFile.json', 'w') as backup:
+            json.dump(Devices, backup, indent=4)
 
 def get_TPLink_devices():
     # if your server has multiple interfaces on the same network (e.g., wireless and eth0)
@@ -143,4 +145,6 @@ def get_TPLink_devices():
     
 
 if __name__ == '__main__':
+    import startup
+    startup.bootstrap_devices()
     asyncio.run(serve())
