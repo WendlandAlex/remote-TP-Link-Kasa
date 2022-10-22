@@ -9,7 +9,7 @@ bin/
 Dockerfile
 fly.toml
 wireguard/*
-db/stateFile.json*
+db/*.json
 
 # [include https://github.com/github/gitignore/blob/main/Python.gitignore]
 # Byte-compiled / optimized / DLL files
