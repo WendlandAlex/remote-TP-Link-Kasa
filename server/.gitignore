@@ -10,6 +10,7 @@ Dockerfile
 fly.toml
 wireguard/*
 db/*.json
+db/*.bak
 
 # [include https://github.com/github/gitignore/blob/main/Python.gitignore]
 # Byte-compiled / optimized / DLL files
