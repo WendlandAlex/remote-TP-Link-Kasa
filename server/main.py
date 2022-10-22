@@ -54,7 +54,7 @@ async def handler(webscocket):
                         await webscocket.send(err.status)
 
 
-async def toggleAllDevices(on:bool) -> tuple[str,Exception]:
+async def toggleAllDevices(on:bool):
     Devices = get_TPLink_devices()
     update_coros = [ i.update() for i in Devices ]
     await asyncio.gather(*update_coros)
@@ -77,7 +77,7 @@ async def toggleAllDevices(on:bool) -> tuple[str,Exception]:
         )
 
 
-async def listAllDevices() -> tuple[str,Exception]:
+async def listAllDevices():
     Devices = get_TPLink_devices()
     update_coros = [ i.update() for i in Devices ]
     await asyncio.gather(*update_coros)
@@ -108,7 +108,7 @@ def SmartPlug_fmt(Devices):
     return _fmt
 
 
-def snapshot_device_state(Devices:list[dict]) -> None:
+def snapshot_device_state(Devices):
     # if no devices are discovered, don't destroy the snapshot of the last known devices
     if Devices != []:
         with open('db/stateFile.json', 'w') as backup:
@@ -120,8 +120,8 @@ def get_TPLink_devices():
     results = set()
 
     for i in subprocess.getoutput('ip neigh show').splitlines():
-        host = i.split(' ')
-        host.remove('')
+        orig = i.split(' ')
+        host = [ x for x in orig if x != '' ]
         
         ip_returns = ['ip_addr', 'host_type', 'interface', 'ip_addr_type', 'mac_addr', 'status']
 
