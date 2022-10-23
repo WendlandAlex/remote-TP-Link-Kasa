@@ -1,10 +1,11 @@
-from flask import Flask
-from flask_bootstrap import Bootstrap
 import asyncio
 import os
+
+import pyotp
 import websockets
 from dotenv import load_dotenv
-import pyotp
+from flask import Flask
+from flask_bootstrap import Bootstrap
 
 app = Flask(
     __name__,

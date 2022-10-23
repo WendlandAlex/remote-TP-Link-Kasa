@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, RadioField, SubmitField
+from wtforms import RadioField, StringField, SubmitField
 from wtforms.validators import DataRequired, Regexp
 
 devices = ['all','entrance','kitchen','office','bathroom']

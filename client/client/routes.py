@@ -1,13 +1,17 @@
-from flask import current_app as app
-from flask import Flask, request, abort, Response, url_for, render_template, redirect
 import websockets
+from flask import Flask, Response, abort
+from flask import current_app as app
+from flask import redirect, render_template, request, url_for
 
 from forms import DeviceForm
-from main import uri, PYOTP
+from main import PYOTP, uri
+from services import commands
 
 with app.app_context():
     @app.route('/', methods=['GET','POST'])
-    def authenticate():
+    async def authenticate():
+
+
         form = DeviceForm()
 
         if request.method == 'GET':
@@ -31,35 +35,14 @@ with app.app_context():
             if not totp_is_valid:
                 abort(404)
 
-            return redirect(url_for('power_toggle', path=f'{form.command.data}/{form.alias.data}'))
+            res = await commands.send_command(path=f'/power/{form.command.data}/{form.alias.data}')
+
+            return Response(res, status=200, mimetype='application/json')
 
 
-        
+
     @app.route('/devices/<path:path>', methods=['GET'])
     async def devices_list_all(path):
-        async with websockets.connect(uri=uri) as conn:
-            try:
-                await conn.send(request.path)
-                res = await conn.recv()
+            res = await commands.send_command(path=f'/devices/list/all')
 
-                return Response(res, status=200, mimetype='application/json')
-                    
-            except websockets.ConnectionClosed as e:
-                print(e)
-            finally:
-                await conn.close()
-
-
-    @app.route('/power/<path:path>', methods=['GET'])
-    async def power_toggle(path):
-        async with websockets.connect(uri=uri) as conn:
-            try:
-                await conn.send(request.path)
-                res = await conn.recv()
-
-                return Response(res, status=200, mimetype='application/json')
-                    
-            except websockets.ConnectionClosed as e:
-                print(e)
-            finally:
-                await conn.close()
+            return Response(res, status=200, mimetype='application/json')
