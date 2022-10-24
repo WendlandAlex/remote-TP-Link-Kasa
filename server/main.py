@@ -11,6 +11,13 @@ import dotenv
 dotenv.load_dotenv()
 WS_HOST = os.getenv('WS_HOST')
 WS_PORT = os.getenv('WS_PORT')
+MAPPINGS_ENABLED = bool(
+    os.getenv('MAPPINGS_ENABLED', False)
+)
+if MAPPINGS_ENABLED is True:
+    with open('db/mappings.json', 'r') as infile:
+        mappings = json.load(infile)
+
 
 # identify eligible smart devices by the manufacturer prefix
 TPLink_MACaddr_re = r'54:af:97:a0:\w{2}:\w{2}'
@@ -70,7 +77,7 @@ async def toggleAllDevices(on:bool):
 
     await asyncio.gather(*update_coros)
 
-    allDevices = SmartPlug_fmt(Devices)
+    allDevices = SmartPlug_fmt(Devices, mappings_enabled=MAPPINGS_ENABLED)
 
     return (
         json.dumps(allDevices), None
@@ -82,24 +89,29 @@ async def listAllDevices():
     update_coros = [ i.update() for i in Devices ]
     await asyncio.gather(*update_coros)
 
-    allDevices = SmartPlug_fmt(Devices)
+    allDevices = SmartPlug_fmt(Devices, mappings_enabled=MAPPINGS_ENABLED)
 
     return (
         json.dumps(allDevices), None
         )
 
 
-def SmartPlug_fmt(Devices):
-    _fmt = [
-        {
+def SmartPlug_fmt(Devices, mappings_enabled:bool):
+    _fmt = []
+
+    for i in Devices:
+        dev = {
             "alias":        i._sys_info.get("alias"),
             "host":         i.host,
             "dev_name":     i._sys_info.get("dev_name"),
             "is_on":        i.is_on
         }
-        for i in Devices
-    ]
-
+        if mappings_enabled is True:
+            dev.update({
+                "room": mappings.get(i.host).get("room")
+                })
+        _fmt.append(dev)
+    
     try:
         snapshot_device_state(_fmt)
     except Exception as e:

@@ -1,0 +1,18 @@
+[
+    {
+        "alias": "TP-LINK_Smart Plug_1111",
+        "room": "Gym"
+    },
+    {
+        "alias": "TP-LINK_Smart Plug_2222",
+        "room": "Ballroom"
+    },
+    {
+        "alias": "TP-LINK_Smart Plug_3333",
+        "room": "Courtyard"
+    },
+    {
+        "alias": "TP-LINK_Smart Plug_4444",
+        "room": "Rec Room"
+    }
+]

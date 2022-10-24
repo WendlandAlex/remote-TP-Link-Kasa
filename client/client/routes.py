@@ -6,13 +6,16 @@ from flask import redirect, render_template, request, url_for
 from forms import DeviceForm
 from main import PYOTP, uri
 from services import commands
+import json
 
 with app.app_context():
     @app.route('/', methods=['GET','POST'])
     async def authenticate():
 
-
-        form = DeviceForm()
+        devices = json.loads(
+            await commands.send_command('/devices/list/all')
+        )
+        form = DeviceForm(devices)
 
         if request.method == 'GET':
             return render_template(
@@ -35,7 +38,7 @@ with app.app_context():
             if not totp_is_valid:
                 abort(404)
 
-            res = await commands.send_command(path=f'/power/{form.command.data}/{form.alias.data}')
+            res = await commands.send_command(path=f'/power/{form.command.data}/{form.room.data}')
 
             return Response(res, status=200, mimetype='application/json')
 
