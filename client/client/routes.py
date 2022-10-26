@@ -49,7 +49,7 @@ with app.app_context():
     @app.route('/power/<path:path>', methods=['POST'])
     async def power_toggle(path):
         body = request.get_json()
-        print(body)
+
         totp = body.get('totp')
         if mfa.validate_totp(PYOTP, totp) is False:
             abort(404)

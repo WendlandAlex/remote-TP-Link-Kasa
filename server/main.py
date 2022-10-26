@@ -38,18 +38,20 @@ async def handler(webscocket):
 
         (noun,verb,target,*args) = message.lstrip('/').split('/')
 
+        if target.lower() != 'all':
+            host = db_lookup({'room': target.lower()}, 'host')
+
         if noun.lower() == 'power':
             if verb.lower() == 'on': on = True
             if verb.lower() == 'off': on = False
-            
-            if target.lower() == 'all':
-                res, err = await toggleAllDevices(on=on)
-                if err is None:
-                    await webscocket.send(res)
-                else:
-                    print(err)
-                    await webscocket.send(err.status)
-        
+
+            res, err = await toggleDevices(on=on, target=host)
+            if err is None:
+                await webscocket.send(res)
+            else:
+                print(err)
+                await webscocket.send(err.status)
+
         if noun.lower() == 'devices':
             if verb.lower() == 'list':
                 if target.lower() == 'all' and args == []:
@@ -61,8 +63,12 @@ async def handler(webscocket):
                         await webscocket.send(err.status)
 
 
-async def toggleAllDevices(on:bool):
-    Devices = get_TPLink_devices()
+async def toggleDevices(on:bool,target):
+    if target == 'all':
+        Devices = get_TPLink_devices()
+    else:
+        Devices = [ i for i in get_TPLink_devices() if i.host == target ]
+
     update_coros = [ i.update() for i in Devices ]
     await asyncio.gather(*update_coros)
 
@@ -125,6 +131,23 @@ def snapshot_device_state(Devices):
     if Devices != []:
         with open('db/stateFile.json', 'w') as backup:
             json.dump(Devices, backup, indent=4)
+
+def db_lookup(search_key_value, result_key):
+    with open('db/stateFile.json', 'r') as infile:
+        stateFile = json.load(infile)
+
+        for key,value in search_key_value.items():
+            result = []
+            for device in stateFile:
+                for k,v in device.items():
+                    k = k.lower()
+                    v = str(v).lower()
+
+                    if k == key and v == value:
+                        result.append(device)
+            
+            if len(result) > 0:
+                return result[0][result_key]
 
 def get_TPLink_devices():
     # if your server has multiple interfaces on the same network (e.g., wireless and eth0)
