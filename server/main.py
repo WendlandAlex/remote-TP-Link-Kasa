@@ -38,7 +38,9 @@ async def handler(webscocket):
 
         (noun,verb,target,*args) = message.lstrip('/').split('/')
 
-        if target.lower() != 'all':
+        if target.lower() == 'all':
+            host = 'all'
+        else:
             host = db_lookup({'room': target.lower()}, 'host')
 
         if noun.lower() == 'power':
