@@ -4,4 +4,5 @@ flask-bootstrap4
 flask-wtf
 pyotp
 python-dotenv
+uwsgi
 websockets
