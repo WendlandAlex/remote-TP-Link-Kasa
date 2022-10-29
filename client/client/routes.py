@@ -43,7 +43,10 @@ with app.app_context():
 
             res = await commands.send_command(_cmd)
 
-            return Response(res, status=200, mimetype='application/json')
+            # return Response(res, status=200, mimetype='application/json')
+            return redirect(
+                url_for('devices_list_all', path='formSuccess')
+            )
 
 
     @app.route('/power/<path:path>', methods=['POST'])
