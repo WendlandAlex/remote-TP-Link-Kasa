@@ -1,20 +1,23 @@
-import websockets
+# import websockets
 from flask import Flask, Response, abort
 from flask import current_app as app
-from flask import redirect, render_template, request, url_for
+from flask import redirect, render_template, request, url_for, jsonify
+import requests
 
 from forms import DeviceForm
-from main import PYOTP
-from services import commands, mfa
+from main import PYOTP, uri
+from services import mfa
 import json
 
 with app.app_context():
+    @app.route('/json', methods=['GET'])
+    async def json():
+        devices = requests.get(f'{uri}/').json()
+        return jsonify(devices)
+
     @app.route('/', methods=['GET','POST'])
     async def authenticate():
-
-        devices = json.loads(
-            await commands.send_command('/devices/list/all')
-        )
+        devices = requests.get(f'{uri}/').json()
         form = DeviceForm(devices)
 
         if request.method == 'GET':
@@ -35,41 +38,15 @@ with app.app_context():
             if totp_is_valid is False:
                 abort(404)
 
-            _cmd = '/' + '/'.join([
-                'power',
-                form.command.data,
-                form.room.data,
-            ])
+            print(form.room.data)
+            print(form.command.data)
 
-            res = await commands.send_command(_cmd)
-
-            # return Response(res, status=200, mimetype='application/json')
-            return redirect(
-                url_for('devices_list_all', path='formSuccess')
-            )
-
-
-    @app.route('/power/<path:path>', methods=['POST'])
-    async def power_toggle(path):
-        body = request.get_json()
-
-        totp = body.get('totp')
-        if mfa.validate_totp(PYOTP, totp) is False:
-            abort(404)
-
-        _cmd = '/' + '/'.join([
-            body.get('noun'),
-            body.get('verb'),
-            body.get('target')
-        ])
-
-        res = await commands.send_command(_cmd)
-
-        return Response(res, status=200, mimetype='application/json')
-
-
-    @app.route('/devices/<path:path>', methods=['GET'])
-    async def devices_list_all(path):
-            res = await commands.send_command(path=f'/devices/list/all')
-
+            res = requests.post(f'{uri}/submit', json={
+                'target': form.room.data,
+                'power': form.command.data
+            })
+            # return redirect(
+            #     url_for('authenticate')
+            # )
+            # return jsonify(res)
             return Response(res, status=200, mimetype='application/json')

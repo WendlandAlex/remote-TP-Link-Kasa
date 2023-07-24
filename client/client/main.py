@@ -19,29 +19,17 @@ Bootstrap(app)
 
 with app.app_context():
     load_dotenv()
-    WS_HOST = os.getenv('WS_HOST', 'localhost')
-    WS_PORT = os.getenv('WS_PORT', 8765)
-    if ':' in WS_HOST:
-        uri = f'ws://[{WS_HOST}]:{WS_PORT}/'
+    HTTP_HOST = os.getenv('HTTP_HOST', 'localhost')
+    HTTP_PORT = os.getenv('HTTP_PORT', 8765)
+    if ':' in HTTP_HOST:
+        uri = f'http://[{HTTP_HOST}]:{HTTP_PORT}'
     else:
-        uri = f'ws://{WS_HOST}:{WS_PORT}/'
-
-    # exit if there is no server to connect to
-    async def healthcheck():
-        async with websockets.connect(uri=uri) as conn:
-            await conn.ping()
-                
-            sockinfo = conn.remote_address
-            if ':' in WS_HOST:
-                print(f'connected to socket: ws://[{sockinfo[0]}]:{sockinfo[1]}')
-            else:
-                print(f'connected to socket: ws://{sockinfo[0]}:{sockinfo[1]}')
-
-        asyncio.run(healthcheck())
+        uri = f'http://{HTTP_HOST}:{HTTP_PORT}'
 
     PYOTP = pyotp.TOTP(app.config.get('PYOTP_SECRET'))
 
     import routes
+
 
 
 if __name__ == '__main__':

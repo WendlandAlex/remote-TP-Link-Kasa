@@ -6,3 +6,4 @@ pyotp
 python-dotenv
 uwsgi
 websockets
+requests

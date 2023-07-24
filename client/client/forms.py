@@ -1,13 +1,23 @@
 from flask_wtf import FlaskForm
-from wtforms import RadioField, StringField, SubmitField
+from wtforms import RadioField, SelectMultipleField, StringField, SubmitField, widgets
 from wtforms.validators import DataRequired, Regexp
 
 states = ['on','off']
 
+class MultiCheckboxField(SelectMultipleField):
+    """
+    A multiple-select, except displays a list of checkboxes.
+
+    Iterating the field will produce subfields, allowing custom rendering of
+    the enclosed checkbox fields.
+    """
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
+
 class DeviceForm(FlaskForm):
-    room = RadioField(
+    room = MultiCheckboxField(
         'Room',
-        validators = [DataRequired()],
+        # validators = [DataRequired()],
         choices=[('all','All')]
     )
 
@@ -17,7 +27,7 @@ class DeviceForm(FlaskForm):
         super().__init__(*args, **kwargs)
         self.devices = devices
         self.room.choices.extend([
-            ( i.get('room'), i.get('room').title() )
+            ( i.get('alias'), i.get('alias') )
             for i in self.devices
         ])
 
