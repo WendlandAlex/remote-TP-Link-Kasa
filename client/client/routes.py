@@ -3,6 +3,9 @@ from flask import Flask, Response, abort
 from flask import current_app as app
 from flask import redirect, render_template, request, url_for, jsonify
 import requests
+import os
+
+from flask_wtf import csrf
 
 from forms import DeviceForm
 from main import PYOTP, uri
@@ -24,7 +27,7 @@ with app.app_context():
             return render_template(
                 'authenticate.jinja2',
                 form=form,
-                title='vpnKasa',
+                title=os.getenv('TITLE'),
                 template='form-template'
             )
         

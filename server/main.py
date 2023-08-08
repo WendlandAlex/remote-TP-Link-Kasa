@@ -9,6 +9,8 @@ import dotenv
 from flask import Flask, request, Response
 import kasa
 
+from startup import bootstrap_devices
+
 dotenv.load_dotenv()
 WS_HOST = os.getenv('WS_HOST')
 WS_PORT = os.getenv('WS_PORT')
@@ -54,7 +56,7 @@ def get_TPLink_devices():
         except IndexError:
             continue
         except Exception:
-            raisef
+            raise
 
     return [kasa.SmartPlug(i) for i in results]
 
@@ -175,6 +177,7 @@ def SmartPlug_fmt(Devices, mappings_enabled: bool):
 
 
 if __name__ == '__main__':
+    bootstrap_devices()
     Devices = get_TPLink_devices()
     app.run(
         host=os.getenv('WS_HOST'),

@@ -6,7 +6,7 @@ def bootstrap_devices():
         Devices = json.load(infile)
         for device in Devices:
             subprocess.check_call(
-                ['kasa', '--host', device]
+                ['kasa', '--host', device.get('host')]
             )
 
 if __name__ == '__main__':

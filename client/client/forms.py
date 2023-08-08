@@ -37,7 +37,7 @@ class DeviceForm(FlaskForm):
         choices = [ ( i, i.title() ) for i in states ]
     )
     totp = StringField(
-        'MFA Code',
+        'TOTP',
         validators = [
             DataRequired(),
             Regexp(r"""\d{6}""")
