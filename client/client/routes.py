@@ -41,11 +41,11 @@ with app.app_context():
             if totp_is_valid is False:
                 abort(404)
 
-            print(form.room.data)
+            print(form.hosts.data)
             print(form.command.data)
 
             res = requests.post(f'{uri}/submit', json={
-                'target': form.room.data,
+                'hosts': form.hosts.data,
                 'power': form.command.data
             })
             # return redirect(

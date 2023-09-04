@@ -1,3 +1,0 @@
-Flask[async]
-python-kasa
-python-dotenv

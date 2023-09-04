@@ -15,8 +15,8 @@ class MultiCheckboxField(SelectMultipleField):
     option_widget = widgets.CheckboxInput()
 
 class DeviceForm(FlaskForm):
-    room = MultiCheckboxField(
-        'Room',
+    hosts = MultiCheckboxField(
+        'Hosts',
         # validators = [DataRequired()],
         choices=[('all','All')]
     )
@@ -26,7 +26,7 @@ class DeviceForm(FlaskForm):
         """citation: https://stackoverflow.com/a/59586666"""
         super().__init__(*args, **kwargs)
         self.devices = devices
-        self.room.choices.extend([
+        self.hosts.choices.extend([
             ( i.get('alias'), i.get('alias') )
             for i in self.devices
         ])

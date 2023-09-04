@@ -4,9 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=vpnKasa
-WorkingDirectory=/app/server
-ExecStart=/app/server/.virtualenv/bin/python3 /app/server/main.py
+User=ubuntu
+WorkingDirectory=/home/ubuntu
+ExecStart=node /home/ubuntu/index.js
 Restart=on-failure
 
 [Install]
