@@ -18,6 +18,29 @@ with app.app_context():
         devices = requests.get(f'{uri}/').json()
         return jsonify(devices)
 
+    @app.route('/submit', methods=['POST'])
+    async def submit():
+        print(request.json)
+        totp = int(request.json.get('totp'))
+        totp_is_valid = mfa.validate_totp(PYOTP, totp)
+
+        print(totp, totp_is_valid)
+
+        if totp_is_valid is False:
+            abort(404)
+
+        print(request.json.get('hosts'))
+        print(request.json.get('powerState'))
+
+        res = requests.post(
+            f'{uri}/submit', json={
+                'hosts': request.json.get('hosts'),
+                'powerState': request.json.get('powerState'),
+                }
+            )
+
+        return Response(res, status=200, mimetype='application/json')
+
     @app.route('/', methods=['GET','POST'])
     async def authenticate():
         devices = requests.get(f'{uri}/').json()

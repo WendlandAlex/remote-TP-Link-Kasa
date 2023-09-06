@@ -6,6 +6,7 @@ import websockets
 from dotenv import load_dotenv
 from flask import Flask
 from flask_bootstrap import Bootstrap
+from flask_cors import CORS
 
 app = Flask(
     __name__,
@@ -16,6 +17,7 @@ app = Flask(
     
 app.config.from_object('config.Config')
 Bootstrap(app)
+CORS(app)
 
 with app.app_context():
     load_dotenv()
